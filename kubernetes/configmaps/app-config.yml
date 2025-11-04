@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: devops-app
+data:
+  database.host: "${DB_HOST}"
+  database.port: "5432"
+  database.name: "appdb"
+  app.name: "CloudOps Platform"
+  app.version: "1.0.0"
+  log.level: "info"
+  cache.enabled: "true"
+  cache.ttl: "3600"

@@ -1,0 +1,71 @@
+---
+- name: Configure EC2 instances
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    docker_users:
+      - ec2-user
+    node_exporter_version: "1.6.1"
+
+  tasks:
+    - name: Update system packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Install required packages
+      yum:
+        name:
+          - git
+          - curl
+          - wget
+          - vim
+          - htop
+          - unzip
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Docker
+      include_role:
+        name: docker
+
+    - name: Install AWS CLI
+      pip:
+        name: awscli
+        state: present
+
+    - name: Install kubectl
+      get_url:
+        url: https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    - name: Configure AWS CLI
+      shell: |
+        aws configure set region {{ aws_region | default('us-east-1') }}
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+        AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+
+    - name: Install Node Exporter for monitoring
+      include_role:
+        name: prometheus-node-exporter
+
+    - name: Configure CloudWatch agent
+      include_role:
+        name: cloudwatch-agent
+
+    - name: Ensure services are running
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - docker
+        - node_exporter

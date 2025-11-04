@@ -1,0 +1,69 @@
+---
+- name: Deploy Application to Kubernetes
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    app_name: "cloudops-platform-app"
+    namespace: "default"
+    docker_registry: "{{ lookup('env', 'ECR_REGISTRY') }}"
+    image_tag: "{{ lookup('env', 'IMAGE_TAG') | default('latest', true) }}"
+
+  tasks:
+    - name: Ensure kubectl is installed
+      command: kubectl version --client
+      register: kubectl_version
+      changed_when: false
+
+    - name: Display kubectl version
+      debug:
+        msg: "{{ kubectl_version.stdout }}"
+
+    - name: Create Kubernetes namespace if not exists
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ namespace }}"
+
+    - name: Deploy ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        src: "../../kubernetes/configmaps/app-config.yml"
+        namespace: "{{ namespace }}"
+
+    - name: Deploy application
+      kubernetes.core.k8s:
+        state: present
+        src: "../../kubernetes/deployments/app-deployment.yml"
+        namespace: "{{ namespace }}"
+
+    - name: Deploy service
+      kubernetes.core.k8s:
+        state: present
+        src: "../../kubernetes/services/app-service.yml"
+        namespace: "{{ namespace }}"
+
+    - name: Wait for deployment to be ready
+      kubernetes.core.k8s_info:
+        kind: Deployment
+        name: "{{ app_name }}-deployment"
+        namespace: "{{ namespace }}"
+      register: deployment
+      until: deployment.resources[0].status.readyReplicas | default(0) >= 2
+      retries: 30
+      delay: 10
+
+    - name: Get service information
+      kubernetes.core.k8s_info:
+        kind: Service
+        name: "{{ app_name }}-service"
+        namespace: "{{ namespace }}"
+      register: service_info
+
+    - name: Display service endpoint
+      debug:
+        msg: "Application deployed successfully. Service: {{ service_info.resources[0].status }}"
