@@ -226,6 +226,6 @@ This project demonstrates:
 
 **Status**: ✅ Project Complete and Ready for Deployment
 
-**Author**: DevOps Team
+**Author**: Raj Nayan
 **License**: MIT
 **Version**: 1.0.0
