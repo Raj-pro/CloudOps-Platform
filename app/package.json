@@ -11,7 +11,7 @@
     "build": "echo 'Build complete'"
   },
   "keywords": ["devops", "kubernetes", "nodejs", "express"],
-  "author": "DevOps Team",
+  "author": "Raj Nayan",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
