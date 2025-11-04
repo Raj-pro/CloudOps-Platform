@@ -373,10 +373,4 @@ nc -zv $DB_HOST 5432
 6. **Notify stakeholders** of successful deployment
 7. **Tag release** in Git
 
-## Support
 
-For deployment issues:
-- Check logs: `kubectl logs -f deployment/devops-app-deployment`
-- Review events: `kubectl get events --sort-by=.metadata.creationTimestamp`
-- Contact DevOps team
-- Create incident ticket
