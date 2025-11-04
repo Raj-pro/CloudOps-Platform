@@ -317,9 +317,3 @@ nc -zv <DB_HOST> 5432
 4. **Set up SSL/TLS:** Configure ACM certificates and update ingress
 5. **Implement CI/CD:** Review and customize GitHub Actions workflows
 
-## Support
-
-For issues or questions:
-- Check the [Troubleshooting Guide](troubleshooting.md)
-- Review logs: `kubectl logs -f deployment/devops-app-deployment`
-- Check AWS Console for infrastructure status
