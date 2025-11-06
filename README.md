@@ -13,6 +13,7 @@ This project deploys a scalable web application on AWS EKS (Kubernetes) with the
 - **Shell Scripts**: Automation utilities
 - **Docker**: Application containerization
 
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     GitHub Actions CI/CD                    │
